@@ -1,9 +1,14 @@
 Reproducible Research Project: Peer Assessment #1
 ================================
 File: PA1_template.Rmd  
-Date: 8/16/2015  
-Source data is .csv file of activity (number of steps) in five-minute intervals  
-by day collected over two months for one individual
+Date: 9/18/2015  
+
+### Introduction  
+
+Data on personal fitness activity can be captured on devices such as Fitbit.  
+This project uses data collected from 10/2012 through 11/2012 for one individual.  
+The data collected in the number of steps taken in five-minute intervals  
+by day collected over the two months.
 
 
 ```r
@@ -16,6 +21,21 @@ Libraries required for this analysis
 - knitr
 
 
+```
+## Warning: package 'lubridate' was built under R version 3.1.3
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.1.3
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.3
+```
+
+```
+## Need help? Try the ggplot2 mailing list: http://groups.google.com/group/ggplot2.
+```
 ### Task 1: Load the data if not already loaded.  
 
 
@@ -92,6 +112,7 @@ Interval with maximum steps is 835.
 
 ### Task 4: Determine the number of intervals with NA values
 
+Subset to just the NA values and count the number of NA values.  
 
 ```r
 #------------------------------------------------------------
@@ -106,7 +127,7 @@ Number of NA values is 2304
 
 
 ### Task 5: Replace intervals of NA steps with mean for that interval over all days
-
+Method: replace NA with average steps for that interval, averaged across dates.  
 
 ```r
 #------------------------------------------------------------
@@ -120,7 +141,8 @@ mydata_impute_na <- mutate(mydata_raw, steps=replace(mydata_raw$steps,is.na(myda
 ```
 
 ### Task 6: Analyze total number of steps/day, with imputed NA values; plot histogram  
-Method: replace NA with average steps for that interval, averaged across dates
+Method: calc total steps per day and plot on a histogram.  
+Calc the average and median of the daily values.  
 
 
 ```r
@@ -145,8 +167,31 @@ median_steps_per_day_imputed <- median(mydata_sum_day_imputed$steps_sum)
 The mean steps per day using imputed values is 10766.19. (Compare to 10766.19).  
 The median steps per day using imputed values is 10766.19  (Compare to 10765).
 
-The mean value does not change when using imputed values.
-The median value differs only slightly when using imputed values.
+The mean steps per day does not change when using imputed values.  
+This is only possible if when there is an NA value then all the intervals for that day had NA values (see below for the counts of intervals with NA for each affected day).    
+The median value differs only slightly when using imputed values, and equals the mean.  This is because the relatively large numbers of days (8) that equaled the mean were enough to move the midpoint (median) to that value. 
+
+
+```r
+mydata_na$na_1 <- 1
+mydata_na_grouped <- group_by(mydata_na,date)
+mydata_na_count <- summarise(mydata_na_grouped,na_count=sum(na_1))
+mydata_na_count
+```
+
+```
+## Source: local data frame [8 x 2]
+## 
+##         date na_count
+## 1 2012-10-01      288
+## 2 2012-10-08      288
+## 3 2012-11-01      288
+## 4 2012-11-04      288
+## 5 2012-11-09      288
+## 6 2012-11-10      288
+## 7 2012-11-14      288
+## 8 2012-11-30      288
+```
 
 ### Task 7: Analyze weekday vs weekend avg steps/interval, with imputed NA values
 
@@ -175,7 +220,7 @@ with (myplotdata2, {
 })
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
 
 The highest number of steps are taken weekdays around 8-9am, most likely when the person was going 
 to work.  
